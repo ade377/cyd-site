@@ -1,0 +1,29 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: #1a1614; /* very dark brown/black */
+  --color-surface: #2b2624; /* dark brownish gray */
+  --color-brand: #f48fb1; /* soft pink lily accent */
+  --color-brand-light: #fce4ec; /* very light pink */
+  --color-brand-dark: #d81b60; /* deeper pink */
+}
+
+@layer base {
+  body {
+    @apply bg-background text-white min-h-screen overflow-x-hidden antialiased font-sans;
+
+    selection {
+      @apply bg-brand text-white;
+    }
+  }
+}
+
+@layer utilities {
+  .text-shadow-glow {
+    text-shadow: 0 0 20px rgba(230, 168, 188, 0.4), 0 0 40px rgba(230, 168, 188, 0.2);
+  }
+
+  .glass-panel {
+    @apply bg-surface/40 backdrop-blur-md border border-white/5 shadow-xl;
+  }
+}
