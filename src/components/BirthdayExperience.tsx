@@ -3,6 +3,14 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 import { Heart, Gift, Image as ImageIcon } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
+// Reliable Vite asset imports
+import img1 from '../assets/images/IMG_1211.jpeg';
+import img2 from '../assets/images/IMG_1445.jpeg';
+import img3 from '../assets/images/IMG_1741.jpeg';
+import img4 from '../assets/images/IMG_2496.jpeg';
+import img5 from '../assets/images/lp_image.jpeg';
+import img6 from '../assets/images/IMG_4831.jpeg';
+
 const BirthdayExperience: React.FC = () => {
     const containerRef = useRef<HTMLDivElement>(null);
     const { scrollYProgress } = useScroll({ target: containerRef });
@@ -109,24 +117,17 @@ const BirthdayExperience: React.FC = () => {
                 </section>
 
                 {/* 2. Gallery Section */}
-                <section className="py-24" id="gallery">
+                <section className="py-24" id="gallery" data-sync-marker="v2">
                     <SectionHeader icon={<ImageIcon className="w-6 h-6" />} title="Beautiful Memories" />
 
-                    {/* 
-                      TIP FOR THE USER:
-                      To add your own pictures:
-                      1. Place your images in the `public/images/` folder.
-                      2. Replace the 'null' in the `src` below with the path like `/images/your-photo.jpg`.
-                      3. If you have an external link (Google Drive direct link, Imgur, etc.), you can paste the URL there too.
-                    */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-16">
                         {[
-                            { id: 1, src: "/images/IMG_1211.jpeg", alt: "Memory 1" },
-                            { id: 2, src: "/images/IMG_1445.jpeg", alt: "Memory 2" },
-                            { id: 3, src: "/images/IMG_1741.jpeg", alt: "Memory 3" },
-                            { id: 4, src: "/images/IMG_2496.jpeg", alt: "Memory 4" },
-                            { id: 5, src: "/images/lp_image.jpeg", alt: "Memory 5" },
-                            { id: 6, src: "/images/IMG_4831.jpeg", alt: "Memory 6" },
+                            { id: 1, src: img1, alt: "Memory 1" },
+                            { id: 2, src: img2, alt: "Memory 2" },
+                            { id: 3, src: img3, alt: "Memory 3" },
+                            { id: 4, src: img4, alt: "Memory 4" },
+                            { id: 5, src: img5, alt: "Memory 5" },
+                            { id: 6, src: img6, alt: "Memory 6" },
                         ].map((img) => (
                             <motion.div
                                 key={img.id}

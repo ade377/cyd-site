@@ -18,7 +18,7 @@ export const createTextFirework = (text: string, x: number, y: number) => {
     const particles = [];
     
     // Sample every 4th pixel for performance
-    const step = 4;
+    const step = 6; // Increased from 4 to 6
     for (let py = 0; py < canvas.height; py += step) {
         for (let px = 0; px < canvas.width; px += step) {
             const index = (py * canvas.width + px) * 4;
@@ -35,12 +35,12 @@ export const createTextFirework = (text: string, x: number, y: number) => {
                 particles.push({
                     x: window.innerWidth * x, 
                     y: window.innerHeight * y,
-                    vx: dx * 0.15 + (Math.random() - 0.5) * 2, // explode outward but maintain shape
-                    vy: dy * 0.15 + (Math.random() - 0.5) * 2 - 5, // add some upward momentum
+                    vx: dx * 0.15 + (Math.random() - 0.5) * 2, 
+                    vy: dy * 0.15 + (Math.random() - 0.5) * 2 - 5, 
                     color: color,
                     life: 1,
-                    size: Math.random() * 3 + 2,
-                    decay: Math.random() * 0.015 + 0.015,
+                    size: Math.random() * 2 + 1.5,
+                    decay: Math.random() * 0.015 + 0.02, // Slightly faster decay
                     gravity: 0.1,
                     // target coordinates for forming text
                     targetX: window.innerWidth * 0.5 + dx * 2.5,

@@ -63,7 +63,7 @@ const RevealSequence: React.FC<RevealSequenceProps> = ({ onComplete }) => {
                 const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
                 const newParticles = [];
                 
-                const step = 3;
+                const step = 5; // Increased from 3 to 5 for ~60% fewer particles
                 for (let py = 0; py < canvas.height; py += step) {
                     for (let px = 0; px < canvas.width; px += step) {
                         const index = (py * canvas.width + px) * 4;
@@ -81,8 +81,8 @@ const RevealSequence: React.FC<RevealSequenceProps> = ({ onComplete }) => {
                                 vy: (Math.random() - 0.5) * 15 - 5,
                                 color: color,
                                 life: 1,
-                                size: Math.random() * 2 + 2,
-                                decay: 0.005,
+                                size: Math.random() * 1.5 + 1.5, // Slightly smaller
+                                decay: 0.008, // Slightly faster decay
                                 targetX: window.innerWidth * 0.5 + dx * 2,
                                 targetY: window.innerHeight * 0.35 + dy * 2,
                                 forming: true
@@ -181,9 +181,7 @@ const RevealSequence: React.FC<RevealSequenceProps> = ({ onComplete }) => {
                     ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
                     ctx.fill();
                     
-                    // Glowing effect
-                    ctx.shadowBlur = 10;
-                    ctx.shadowColor = p.color;
+                    // Removed ctx.shadowBlur/shadowColor for mobile performance
                 }
             });
 

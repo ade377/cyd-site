@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 
 interface CountdownProps {
@@ -13,7 +13,7 @@ const Countdown: React.FC<CountdownProps> = ({ timeLeft }) => {
     const seconds = Math.floor((timeLeft / 1000) % 60);
 
     // Generate some random floating particles for the background
-    const [particles, setParticles] = useState([...Array(30)].map((_, i) => ({
+    const [particles] = useState([...Array(30)].map((_, i) => ({
         id: i,
         x: Math.random() * 100,
         y: Math.random() * 100,
