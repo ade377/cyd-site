@@ -27,20 +27,20 @@ const RevealSequence: React.FC<RevealSequenceProps> = ({ onComplete }) => {
     }, []);
 
     useEffect(() => {
-        // 1. Ignition phase lasts 1.5s
+        // 1. Ignition phase shortened to 0.8s
         const ignitionTimer = setTimeout(() => {
             setPhase('LAUNCH');
-        }, 1500);
+        }, 800);
 
         return () => clearTimeout(ignitionTimer);
     }, []);
 
     useEffect(() => {
         if (phase === 'LAUNCH') {
-            // 2. Launching phase lasts 2 seconds, then explodes
+            // 2. Launching phase shortened to 1s
             const explosionTimer = setTimeout(() => {
                 setPhase('EXPLOSION');
-            }, 2000);
+            }, 1000);
             return () => clearTimeout(explosionTimer);
         }
 
@@ -66,7 +66,7 @@ const RevealSequence: React.FC<RevealSequenceProps> = ({ onComplete }) => {
                 const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
                 const newParticles = [];
                 
-                const step = 8; // Further increased from 5 to 8 for mobile performance
+                const step = 12; // Extreme reduction for mobile
                 for (let py = 0; py < canvas.height; py += step) {
                     for (let px = 0; px < canvas.width; px += step) {
                         const index = (py * canvas.width + px) * 4;
@@ -84,8 +84,8 @@ const RevealSequence: React.FC<RevealSequenceProps> = ({ onComplete }) => {
                                 vy: (Math.random() - 0.5) * 15 - 5,
                                 color: color,
                                 life: 1,
-                                size: Math.random() * 1.5 + 1.5, // Slightly smaller
-                                decay: 0.008, // Slightly faster decay
+                                size: Math.random() * 1.5 + 1.5,
+                                decay: 0.008,
                                 targetX: window.innerWidth * 0.5 + dx * 2,
                                 targetY: window.innerHeight * 0.35 + dy * 2,
                                 forming: true
@@ -97,48 +97,44 @@ const RevealSequence: React.FC<RevealSequenceProps> = ({ onComplete }) => {
             };
 
             // Phase 2: Trigger robust flash
-            // Safety fallback: Force flash to hide after 800ms no matter what
             const flashTimer = setTimeout(() => {
                 setFlashComplete(true);
             }, 800);
 
-            // Phase 3: Offload particle generation to avoid blocking the flash render
+            // Phase 3: Offload particle generation
             setTimeout(() => {
                 const initialPts = createTextFirework(0.5, 0.35);
                 setParticles(initialPts);
             }, 50);
 
-            // Phase 3: Massive Exaggerated Explosion - THROTTLED
-            // We fire big bursts every 300ms instead of every frame
+            // Phase 4: Simplified Confetti - Fire exactly 3 times
+            let count = 0;
             const confettiInterval = setInterval(() => {
-                // Outer bursts
                 confetti({
-                    particleCount: 25,
+                    particleCount: 30,
                     angle: 60,
-                    spread: 80,
+                    spread: 70,
                     origin: { x: 0, y: 0.8 },
-                    colors: ['#f48fb1', '#fce4ec', '#d81b60', '#ffb6c1', '#ffffff', '#ffd700'],
+                    colors: ['#f48fb1', '#ffffff', '#ffd700'],
                     disableForReducedMotion: true,
-                    startVelocity: 45,
-                    gravity: 0.8
                 });
                 confetti({
-                    particleCount: 25,
+                    particleCount: 30,
                     angle: 120,
-                    spread: 80,
+                    spread: 70,
                     origin: { x: 1, y: 0.8 },
-                    colors: ['#f48fb1', '#fce4ec', '#d81b60', '#ffb6c1', '#ffffff', '#ffd700'],
+                    colors: ['#f48fb1', '#ffffff', '#ffd700'],
                     disableForReducedMotion: true,
-                    startVelocity: 45,
-                    gravity: 0.8
                 });
-            }, 300);
+                count++;
+                if (count >= 3) clearInterval(confettiInterval);
+            }, 400);
 
-            // 3. Transition out to Birthday Experience automatically after explosion subsides
+            // 3. Transition out faster (3s)
             const transitionTimer = setTimeout(() => {
                 setPhase('TRANSITION');
-                setTimeout(onComplete, 1500);
-            }, 6500); 
+                setTimeout(onComplete, 800);
+            }, 3000); 
 
             return () => {
                 clearTimeout(transitionTimer);
@@ -210,10 +206,12 @@ const RevealSequence: React.FC<RevealSequenceProps> = ({ onComplete }) => {
 
     return (
         <motion.div
-            className="relative w-full h-screen overflow-hidden bg-background font-sans"
+            id="reveal-container"
+            className="relative w-screen h-screen overflow-hidden bg-background font-sans"
+            style={{ width: '100vw', height: '100vh', maxWidth: '100vw', maxHeight: '100vh' }}
             initial={{ opacity: 0 }}
             animate={{ opacity: phase === 'TRANSITION' ? 0 : 1 }}
-            transition={{ duration: 1.5 }}
+            transition={{ duration: 1 }}
         >
             {/* Custom Canvas for Text Fireworks */}
             <canvas 
@@ -221,6 +219,7 @@ const RevealSequence: React.FC<RevealSequenceProps> = ({ onComplete }) => {
                 className="absolute inset-0 pointer-events-none z-30"
                 width={window.innerWidth}
                 height={window.innerHeight}
+                style={{ width: '100%', height: '100%' }}
             />
 
             {/* Cinematic Camera Pan
@@ -296,59 +295,6 @@ const RevealSequence: React.FC<RevealSequenceProps> = ({ onComplete }) => {
                             }}
                         />
 
-                        {/* Exaggerated Lilies - Reduced for Mobile */}
-                        {[...Array(10)].map((_, i) => (
-                            <motion.div
-                                key={`ex-lily-${i}`}
-                                className="absolute"
-                                style={{
-                                    left: `${Math.random() * 100}%`,
-                                    top: '-20%'
-                                }}
-                                initial={{ y: 0, x: 0, rotate: 0 }}
-                                animate={{
-                                    y: '140vh',
-                                    x: (Math.random() - 0.5) * 300,
-                                    rotate: Math.random() * 720 - 360
-                                }}
-                                transition={{
-                                    duration: Math.random() * 3 + 2.5, // fast, chaotic fall
-                                    ease: "easeOut",
-                                    delay: Math.random() * 0.5 // immediate burst
-                                }}
-                            >
-                                <svg width="80" height="80" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="drop-shadow-[0_10px_20px_rgba(216,27,96,0.5)] opacity-95" transform={`scale(${Math.random() * 1 + 1.2})`}>
-                                    <path d="M12 2C12 2 10 8 6 10C2 12 2 12 2 12C2 12 8 14 10 18C12 22 12 22 12 22C12 22 14 16 18 14C22 12 22 12 22 12C22 12 16 10 14 6C12 2 12 2 12 2Z" fill="#f48fb1" />
-                                    <path d="M12 4C12 4 11 8 8 9.5C5 11 5 11 5 11C5 11 9 12.5 10.5 15.5C12 18.5 12 18.5 12 18.5C12 18.5 13 14.5 16 13C19 11.5 19 11.5 19 11.5C19 11.5 15 10 13.5 7C12 4 12 4 12 4Z" fill="#d81b60" />
-                                    <circle cx="12" cy="12" r="1.5" fill="#fbc02d" />
-                                </svg>
-                            </motion.div>
-                        ))}
-
-                        {/* Additional floating petals - Reduced for Mobile */}
-                        {[...Array(15)].map((_, i) => (
-                            <motion.div
-                                key={`petal-${i}`}
-                                className="absolute rounded-full bg-brand blur-[1px]"
-                                style={{
-                                    left: `${Math.random() * 100}%`,
-                                    top: '30%',
-                                    width: Math.random() * 6 + 3,
-                                    height: Math.random() * 6 + 3,
-                                }}
-                                initial={{ opacity: 0, scale: 0 }}
-                                animate={{
-                                    opacity: [0, 1, 0],
-                                    scale: [0, 1.5, 1],
-                                    y: [(Math.random() - 0.5) * 200, (Math.random() - 0.5) * 800 + 400],
-                                    x: [(Math.random() - 0.5) * 200, (Math.random() - 0.5) * 600],
-                                }}
-                                transition={{
-                                    duration: Math.random() * 3 + 2,
-                                    ease: "easeOut"
-                                }}
-                            />
-                        ))}
                     </div>
                 )}
             </AnimatePresence>
