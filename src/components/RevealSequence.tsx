@@ -46,7 +46,6 @@ const RevealSequence: React.FC<RevealSequenceProps> = ({ onComplete }) => {
 
         if (phase === 'EXPLOSION') {
             // Only fire the sequence if we haven't already
-            const end = Date.now() + 4000;
 
             // Generate exact text particles
             const createTextFirework = (x: number, y: number) => {
@@ -67,7 +66,7 @@ const RevealSequence: React.FC<RevealSequenceProps> = ({ onComplete }) => {
                 const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
                 const newParticles = [];
                 
-                const step = 5; // Increased from 3 to 5 for ~60% fewer particles
+                const step = 8; // Further increased from 5 to 8 for mobile performance
                 for (let py = 0; py < canvas.height; py += step) {
                     for (let px = 0; px < canvas.width; px += step) {
                         const index = (py * canvas.width + px) * 4;
@@ -97,56 +96,54 @@ const RevealSequence: React.FC<RevealSequenceProps> = ({ onComplete }) => {
                 return newParticles;
             };
 
-            const initialPts = createTextFirework(0.5, 0.35);
-            setParticles(initialPts);
-
             // Phase 2: Trigger robust flash
             // Safety fallback: Force flash to hide after 800ms no matter what
             const flashTimer = setTimeout(() => {
                 setFlashComplete(true);
             }, 800);
 
-            // Massive Exaggerated Explosion
-            let animationFrame: number;
-            const runConfetti = () => {
+            // Phase 3: Offload particle generation to avoid blocking the flash render
+            setTimeout(() => {
+                const initialPts = createTextFirework(0.5, 0.35);
+                setParticles(initialPts);
+            }, 50);
+
+            // Phase 3: Massive Exaggerated Explosion - THROTTLED
+            // We fire big bursts every 300ms instead of every frame
+            const confettiInterval = setInterval(() => {
                 // Outer bursts
                 confetti({
-                    particleCount: 15,
+                    particleCount: 25,
                     angle: 60,
-                    spread: 100,
+                    spread: 80,
                     origin: { x: 0, y: 0.8 },
                     colors: ['#f48fb1', '#fce4ec', '#d81b60', '#ffb6c1', '#ffffff', '#ffd700'],
                     disableForReducedMotion: true,
-                    startVelocity: 50,
+                    startVelocity: 45,
                     gravity: 0.8
                 });
                 confetti({
-                    particleCount: 15,
+                    particleCount: 25,
                     angle: 120,
-                    spread: 100,
+                    spread: 80,
                     origin: { x: 1, y: 0.8 },
                     colors: ['#f48fb1', '#fce4ec', '#d81b60', '#ffb6c1', '#ffffff', '#ffd700'],
                     disableForReducedMotion: true,
-                    startVelocity: 50,
+                    startVelocity: 45,
                     gravity: 0.8
                 });
-
-                if (Date.now() < end) {
-                    animationFrame = requestAnimationFrame(runConfetti);
-                }
-            };
-            runConfetti();
+            }, 300);
 
             // 3. Transition out to Birthday Experience automatically after explosion subsides
             const transitionTimer = setTimeout(() => {
                 setPhase('TRANSITION');
                 setTimeout(onComplete, 1500);
-            }, 6500); // Give plenty of time for the text to form and float
+            }, 6500); 
 
             return () => {
                 clearTimeout(transitionTimer);
                 clearTimeout(flashTimer);
-                cancelAnimationFrame(animationFrame);
+                clearInterval(confettiInterval);
             };
         }
     }, [phase, onComplete]);
@@ -299,8 +296,8 @@ const RevealSequence: React.FC<RevealSequenceProps> = ({ onComplete }) => {
                             }}
                         />
 
-                        {/* Exaggerated Lilies */}
-                        {[...Array(30)].map((_, i) => (
+                        {/* Exaggerated Lilies - Reduced for Mobile */}
+                        {[...Array(10)].map((_, i) => (
                             <motion.div
                                 key={`ex-lily-${i}`}
                                 className="absolute"
@@ -328,16 +325,16 @@ const RevealSequence: React.FC<RevealSequenceProps> = ({ onComplete }) => {
                             </motion.div>
                         ))}
 
-                        {/* Additional floating petals */}
-                        {[...Array(40)].map((_, i) => (
+                        {/* Additional floating petals - Reduced for Mobile */}
+                        {[...Array(15)].map((_, i) => (
                             <motion.div
                                 key={`petal-${i}`}
                                 className="absolute rounded-full bg-brand blur-[1px]"
                                 style={{
                                     left: `${Math.random() * 100}%`,
                                     top: '30%',
-                                    width: Math.random() * 10 + 5,
-                                    height: Math.random() * 10 + 5,
+                                    width: Math.random() * 6 + 3,
+                                    height: Math.random() * 6 + 3,
                                 }}
                                 initial={{ opacity: 0, scale: 0 }}
                                 animate={{

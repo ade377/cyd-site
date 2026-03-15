@@ -15,8 +15,10 @@ const BirthdayExperience: React.FC = () => {
     const containerRef = useRef<HTMLDivElement>(null);
     const { scrollYProgress } = useScroll({ target: containerRef });
 
-    // Parallax subtle background movement
-    const yBg = useTransform(scrollYProgress, [0, 1], ['0%', '20%']);
+    // Parallax background movements
+    const yBg = useTransform(scrollYProgress, [0, 1], ['0%', '30%']);
+    const yOrbs = useTransform(scrollYProgress, [0, 1], ['0%', '-50%']);
+    const opacityDust = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0.4, 1, 1, 0.4]);
 
     useEffect(() => {
         // Grand finale confetti burst on initial load - updated with more magical colors
@@ -53,6 +55,24 @@ const BirthdayExperience: React.FC = () => {
                 <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top,rgba(129,140,248,0.2),transparent_50%)]" />
                 <div className="absolute bottom-0 right-0 w-full h-full bg-[radial-gradient(ellipse_at_bottom,rgba(192,132,252,0.15),transparent_50%)]" />
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[radial-gradient(circle,rgba(244,143,177,0.05),transparent_60%)]" />
+            </motion.div>
+
+            {/* Interactive Scroll Particles (Phase 3) */}
+            <motion.div style={{ y: yOrbs, opacity: opacityDust }} className="absolute inset-0 z-0 pointer-events-none">
+                {[...Array(20)].map((_, i) => (
+                    <div
+                        key={`dust-${i}`}
+                        className="absolute rounded-full bg-white/20 blur-[2px]"
+                        style={{
+                            left: `${Math.random() * 100}%`,
+                            top: `${Math.random() * 200}%`,
+                            width: `${Math.random() * 4 + 2}px`,
+                            height: `${Math.random() * 4 + 2}px`,
+                            boxShadow: '0 0 10px rgba(255,255,255,0.2)',
+                            willChange: 'transform'
+                        }}
+                    />
+                ))}
             </motion.div>
 
             {/* Floating Pink Lilies Loop - Magical tint */}
