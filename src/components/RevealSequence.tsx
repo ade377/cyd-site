@@ -9,13 +9,17 @@ interface RevealSequenceProps {
 const RevealSequence: React.FC<RevealSequenceProps> = ({ onComplete }) => {
     const [phase, setPhase] = useState<'IGNITION' | 'LAUNCH' | 'EXPLOSION' | 'TRANSITION'>('IGNITION');
     const [particles, setParticles] = useState<any[]>([]);
+    const [flashComplete, setFlashComplete] = useState(false);
 
     useEffect(() => {
         const handleResize = () => {
             const canvas = document.getElementById('firework-canvas') as HTMLCanvasElement;
             if (canvas) {
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
+                const dpr = Math.min(window.devicePixelRatio || 1, 2); // Cap at 2 for mobile performance
+                canvas.width = window.innerWidth * dpr;
+                canvas.height = window.innerHeight * dpr;
+                const ctx = canvas.getContext('2d');
+                if (ctx) ctx.scale(dpr, dpr);
             }
         };
         window.addEventListener('resize', handleResize);
@@ -96,6 +100,12 @@ const RevealSequence: React.FC<RevealSequenceProps> = ({ onComplete }) => {
             const initialPts = createTextFirework(0.5, 0.35);
             setParticles(initialPts);
 
+            // Phase 2: Trigger robust flash
+            // Safety fallback: Force flash to hide after 800ms no matter what
+            const flashTimer = setTimeout(() => {
+                setFlashComplete(true);
+            }, 800);
+
             // Massive Exaggerated Explosion
             let animationFrame: number;
             const runConfetti = () => {
@@ -135,6 +145,7 @@ const RevealSequence: React.FC<RevealSequenceProps> = ({ onComplete }) => {
 
             return () => {
                 clearTimeout(transitionTimer);
+                clearTimeout(flashTimer);
                 cancelAnimationFrame(animationFrame);
             };
         }
@@ -278,15 +289,14 @@ const RevealSequence: React.FC<RevealSequenceProps> = ({ onComplete }) => {
 
             {/* Falling Pink Lilies - triggered only on explosion */}
             <AnimatePresence>
-                {phase === 'EXPLOSION' && (
-                    <div className="absolute inset-0 overflow-hidden pointer-events-none z-10">
-                        {/* Enormous White Flash */}
-                        <motion.div 
+                {phase === 'EXPLOSION' && !flashComplete && (
+                    <div className="absolute inset-0 overflow-hidden pointer-events-none z-[100]">
+                        {/* Phase 2: CSS-based White Flash (More reliable than JS animation) */}
+                        <div 
                             className="absolute inset-0 bg-white"
-                            initial={{ opacity: 1 }}
-                            animate={{ opacity: 0 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ duration: 1.5, ease: "easeOut" }}
+                            style={{
+                                animation: 'fadeHold 0.6s ease-out forwards',
+                            }}
                         />
 
                         {/* Exaggerated Lilies */}
@@ -345,6 +355,14 @@ const RevealSequence: React.FC<RevealSequenceProps> = ({ onComplete }) => {
                     </div>
                 )}
             </AnimatePresence>
+            
+            <style>{`
+                @keyframes fadeHold {
+                    0% { opacity: 1; }
+                    30% { opacity: 1; }
+                    100% { opacity: 0; }
+                }
+            `}</style>
         </motion.div>
     );
 };
